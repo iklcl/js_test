@@ -1,72 +1,160 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="utf-8">
 		<title></title>
 		<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-	<style>
-		.arr,.arr2 {
+		<style>
+			/* * {padding: 0; margin: 0;} */
+			 /* body{text-align: center;} */
+			.arr,.arr1,.arr2 ,.arr3{
 			width: 600px;
 			margin-top:20px;
 		}
+		.contain{
+			margin-left:20%;
+			width: 60%;
+			/* display: block; */
+		}
+		label{margin-top: 0;}
 	</style>
 	</head>
-	
+
 	<body>
-		<div class="form-group">
-			<label for="arrLen">获取输入值内所有质数：</label>
-			<input name="arrLen" class="number" value="50">
-			<input value="获取数组" id="createArr" type="button">
-		</div>
-		<div class="form-group">
-		<label for="arr">冒泡排序：</label>
-		<textarea name="arr" class="arr" rows="5">[66,78,90,22,64,18,86,32,19,60,28,24,23,17,67,82,57,89,33,11,76,43,79,5,42,99,14,95,68,51,4,77,91,83,27,21,84,72,8,30,71,52,20,94,80,29,81,26,39,53]</textarea>
-		<input value="获取数组" id="sort" type="button">
-		<textarea  class="arr2" rows="5"></textarea>
+		<div class="contain">
+			<div class="form-group">
+				<p for="arrLen">获取输入值内所有质数：</p>
+				<input name="arrLen" class="number" value="50">
+				<input value="获取数组" id="createArr" type="button">
+				<textarea class="arr1" rows="5"></textarea>
+			</div>
+			<div class="form-group">
+				<p for="arr">冒泡排序：</p>
+				<textarea name="arr" class="arr" rows="5"></textarea>
+				<input value="获取数组" id="sort" type="button" style="display: block;">
+				<textarea class="arr2" rows="5"></textarea>
+			</div>
+			<div class="form-group">
+				<p for="arr">斐波那契：</p>
+				<input class="numberFib" value="50">
+				<input value="获取数组" id="sort2" type="button">
+				<textarea class="arr3" rows="5"></textarea>
+			</div>
 		</div>
 		<script>
+			$('.arr').text(
+				'[66,78,90,22,64,18,86,32,19,60,28,24,23,17,67,82,57,89,33,11,76,43,79,5,42,99,14,95,68,51,4,77,91,83,27,21,84,72,8,30,71,52,20,94,80,29,81,26,39,53]'
+			)
 			//提取质数
 			function prime(n) {
-				const arr = []
+				const arr = [];
 				for (let i = 2; i <= n; i++) {
-					let isPrime = true
+					var blnP = true;
 					for (let j = 2; j <= Math.sqrt(i); j++) {
 						if (!(i % j)) {
-							isPrime = false
-							break
+							blnP = false;
+							break;
 						}
 					}
-					isPrime && arr.push(i)
+					blnP && arr.push(i);
 				}
-				return arr
+				return arr;
+
 			}
 			//冒泡排序
 			function bubbleSort(arr) {
-				arr =JSON.parse(arr);
-				var len = arr.length,
-					j;
-				var temp;
+				arr = JSON.parse(arr);
+				var len = arr.length;
 				while (len > 1) {
-					for (j = 0; j < len - 1; j++) {
-						if (arr[j] > arr[j + 1]) {
-							temp = arr[j];
-							arr[j] = arr[j + 1];
-							arr[j + 1] = temp;
+					for (let i = 0; i < len; i++) {
+						if (arr[i] > arr[i + 1]) {
+							[arr[i], arr[i + 1]] = [arr[i + 1], arr[i]]
 						}
 					}
 					len--;
 				}
+				return arr
+			}
+			//斐波那契数列
+			function fibArr(numb) {
+				let fib = function(n) {
+					return n < 2 ? n : fib(n - 1) + fib(n - 2);
+				};
+				let arr = [];
+				for (var i = 0; i <= numb; i += 1) {
+					arr.push(fib(i));
+				}
 				return arr;
+			}
+
+			function* fib(x) {
+				let a = 0;
+				let b = 1;
+				let n = 0;
+				while (n <= x) {
+					yield a;
+					[a, b] = [b, a + b];
+					n++;
+				}
 			}
 			//质数获取点击
 			$('#createArr').click(function() {
 				let n = $('.number').val();
-				alert(prime(n))
+				$('.arr1').text(JSON.stringify(prime(n)))
 			})
 			$('#sort').click(function() {
 				let n = $('.arr').text();
-				$('.arr2').text(JSON.stringify(bubbleSort(n))) ;
+				$('.arr2').text(JSON.stringify(bubbleSort(n)));
 			})
+			$('#sort2').click(
+				function() {
+					let n = $('.numberFib').val();
+					var f = fib(n);
+					var arr = [];
+					for (let i = 0; i < n; i++) {
+						arr.push(f.next().value)
+					}
+					$('.arr3').text(JSON.stringify(arr))
+				}
+			)
+			//最小四毫秒
+			setTimeout(() => {
+				console.log(5)
+			}, 5)
+			setTimeout(() => {
+				console.log(4)
+			}, 4)
+			setTimeout(() => {
+				console.log(3)
+			}, 3)
+			setTimeout(() => {
+				console.log(2)
+			}, 2)
+			setTimeout(() => {
+				console.log(1)
+			}, 1)
+			setTimeout(() => {
+				console.log(0)
+			}, 0)
+			console.log( ([2,2,2,3,3,4] + ',').replace(/(\d+,)\+/ig, '$1').split(',').slice(0, -1))
+			const tasks = []; // 这里存放异步操作的 Promise
+			const output = (i) => new Promise((resolve) => {
+				setTimeout(() => {
+					console.log(new Date, i);
+					resolve();
+				}, 1000 * i);
+			});
+			// 生成全部的异步操作
+			for (var i = 0; i < 5; i++) {
+				tasks.push(output(i));
+			}
+			// 异步操作完成之后，输出最后的 i
+			Promise.all(tasks).then(() => {
+				setTimeout(() => {
+					console.log(new Date, i);
+				}, 1000);
+			});
 		</script>
 	</body>
 </html>
