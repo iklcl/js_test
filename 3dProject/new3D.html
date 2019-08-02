@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+		<script src="dist/threebox.js" type="text/javascript"></script>
+		<script src='https://api.mapbox.com/mapbox-gl-js/v0.50.0/mapbox-gl.js'></script>
+		<script src='ljdJs/GLTFLoader.js'></script>
+		<script src="dist/OBJLoader.js"></script>
+		<script src="dist/MTLLoader.js"></script>
+		<script src="dist/DDSLoader.js"></script>
+		<script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>
+		<style>
+			body,
+			html {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+			}
+
+			#map {
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div id='map' class='map'></div>
+		<script type="text/javascript">
+		var origin = [120.30853271484375, 30.28397399248833];
+		var map = new mapboxgl.Map({
+			container: 'map',
+			style: {
+				"version": 8,
+
+				// "sprite": "http://127.0.0.1:8848/xiangmihu/mapboxTuBiao/sprite",
+				"glyphs": 'mapboxZITI/{fontstack}/{range}.pbf', //字体
+				//数据源引用
+				"sources": {
+					'areaSource': {
+						'type': 'vector',
+						'scheme': 'tms',
+						'tiles': [
+							// 'http://localhost:8090/geoserver/gwc/service/tms/1.0.0/area_sz@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf',
+							'http://192.168.82.38:8080/geoserver/gwc/service/tms/1.0.0/ydsxdb%3Aydsxdb@EPSG%3A900913@pbf/{z}/{x}/{y}.pbf',
+						]
+					}
+				},
+				"layers": [
+
+					{
+						"id": "background",
+						"type": "background",
+						"layout": {},
+						"paint": {
+							"background-color": {
+								"base": 1,
+								"stops": [
+									[11, "#FFFFFF"],
+									[13, "#FFFFFF"]
+								]
+							}
+						}
+					},
+				]
+			},
+			center: [120.30853271484375, 30.28397399248833],
+			zoom: 17,
+			// pitch: 60,
+			heading: 41,
+			hash: true
+		});
+		map.addControl(new mapboxgl.NavigationControl());
+		var fromLL = function(lon, lat) {
+			// derived from https://gist.github.com/springmeyer/871897
+			var extent = 20037508.34;
+			var x = lon * extent / 180;
+			var y = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180);
+			y = y * extent / 180;
+
+			return [(x + extent) / (2 * extent), 1 - ((y + extent) / (2 * extent))];
+		}
+
+		const THREE = window.THREE;
+				class CustomLayer {
+					constructor() {
+						this.id = 'custom_layer_building';
+						this.type = 'custom';
+						this.camera = new THREE.Camera();
+						this.scene = new THREE.Scene();
+						var ambientLight = new THREE.AmbientLight(0xffffff);
+						this.scene.add(ambientLight);
+						var texture = new THREE.Texture();
+						var loader = new THREE.ImageLoader();
+						//导入资源
+						loader.load(
+							//材质图片所在url
+							'http://127.0.0.1:8848/3dProject/3D/shiwai04/B0001-d2.bmp',
+						
+							function(image) {
+								texture.image = image;
+								texture.needsUpdate = true;
+							});
+						//obj文件加载loader
+						var loader = new THREE.OBJLoader();
+						//导入资源
+						loader.load(
+							//obj模型所在url
+							'http://127.0.0.1:8848/3dProject/3D/shiwai04/shiwai.obj',
+							// 资源加载成功后执行的函数 
+							//@params object 传入的模型，只能是单个模型，也可能是一个group,视构建的model而定 
+							(function(object) {
+								object.traverse(function(child) {
+									if (child instanceof THREE.Mesh) {
+										child.material.map = texture;
+									}
+								});
+								object.rotateY(-Math.PI / 6);
+								// object.translateX(100)//x方向平移100
+								object.scale.set(0.1, 0.1, 0.1);
+								this.scene.add(object);
+							}).bind(this));
+					}
+					onAdd(map, gl) {
+						this.map = map;
+						this.renderer = new THREE.WebGLRenderer({
+							canvas: map.getCanvas(),
+							context: gl
+						});
+						this.renderer.autoClear = false;
+					}
+					render(gl, matrix) {
+						var translate = fromLL(120.30853271484375, 30.28397399248833);
+						var transform = {
+							translateX: translate[0],
+							translateY: translate[1],
+							translateZ: 0,
+							rotateX: Math.PI / 2,
+							rotateY: 0.3,
+							rotateZ: 0,
+							scale: 52.41843220338983e-7 //设置模型大小
+						}
+						const rotationX = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(1, 0, 0), transform.rotateX);
+						const rotationY = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 1, 0), transform.rotateY);
+						const rotationZ = new THREE.Matrix4().makeRotationAxis(new THREE.Vector3(0, 0, 1), transform.rotateZ);
+		
+						const m = new THREE.Matrix4().fromArray(matrix);
+						const l = new THREE.Matrix4().makeTranslation(transform.translateX, transform.translateY, transform.translateZ)
+							.scale(new THREE.Vector3(transform.scale, -transform.scale, transform.scale))
+							.multiply(rotationX)
+							.multiply(rotationY)
+							.multiply(rotationZ);
+		
+						this.camera.projectionMatrix.elements = matrix;
+						this.camera.projectionMatrix = m.multiply(l);
+						this.renderer.state.reset();
+						this.renderer.render(this.scene, this.camera);
+						this.map.triggerRepaint();
+					}
+				}
+		map.on('style.load', function() {
+		map.addLayer(new CustomLayer());
+		})
+
+	</script>
+	</body>
+</html>

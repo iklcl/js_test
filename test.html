@@ -1,0 +1,166 @@
+<!DOCTYPE HTML>
+<html>
+
+	<head>
+		<meta charset="UTF-8" />
+		<title>pro.html</title>
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+		<!--这里是自己本地的jquery-->
+		<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script>
+			$(function(){
+		var h=00;
+		var m=01;
+		var s=05;
+		clearInterval(timer)
+		// console.log(Math.floor(h/10))
+		var timer = setInterval(function(){
+			$(".codeTime1>span:eq(0)").text(Math.floor(h/10));
+			$(".codeTime1>span:eq(1)").text(Math.floor(h%10));
+			$(".codeTime1>span:eq(2)").text(Math.floor(m/10));
+			$(".codeTime1>span:eq(3)").text(Math.floor(m%10));
+			$(".codeTime1>span:eq(4)").text(Math.floor(s/10));
+			$(".codeTime1>span:eq(5)").text(Math.floor(s%10));
+			s--;
+			if(s<0){
+				s=59;
+				m--;
+			}
+			if(m<0){
+				m=59;
+				h--;
+			}
+			if(h<0){
+				h=0,m=0,s=0;
+				clearInterval(timer);
+			}
+		},1000)
+// 		$.post('/pointlat/', {}, function (data) {
+// 			
+// 		})
+		})
+		
+</script>
+		<style>
+			*{
+		padding: 0 ;
+		margin: 0 auto ;
+	}
+	.alarm{
+		width: 300px;
+		height: 360px;
+		background:rgba(55,117,168,1) ;
+		border-radius: 5px;
+		box-shadow:  0px 0px 20px #fff inset;
+		padding: 2px 10px 5px 10px;
+	}
+	.alarm *{
+		color: white;
+		font-size: 14px;
+		font-weight: 100;
+		font-family: NSimSun;
+	}
+	.alarm p{	
+	}
+	.clearFloat:after{
+		content: "";
+		display: block;
+		clear: both;
+	}
+	ul li{
+		list-style: none;
+	}
+	.top li{
+		float: left;
+	} 
+	.top li:last-of-type{
+		float: right;
+	} 
+	a{
+		text-decoration: none;
+	}
+	.content{
+		padding: 5px 15px;
+	}
+	.content li{
+		margin-top: 7px;
+	}
+	.content li::before{
+		content: '';
+		color: #488FD2;
+		width: 2px;
+		height: 2px;
+		display: block;
+		border: 2px solid #488FD2; ;
+		border-radius: 2px;
+		box-sizing: border-box;
+		margin: 0px;
+		float: left;
+		margin:0 10px ;
+		margin-top: 8px;
+		box-shadow:  0px 0px 30px #fff;
+	}
+	.codeTime1,.codeTime2{
+		padding:0px 15px ;
+	}
+	.codeTime1 span, .codeTime2 span{
+		display: inline-block;
+		width: 15px;
+		height: 20px;
+		line-height: 20px;
+		text-align: center;
+		color: white;
+		background:#2DADF7 ;
+		margin-left: 5px;
+		}
+		.btn{
+			width: 90%;
+			border-radius: 2px;
+			margin-left: 10px;
+			margin-top: 5px;
+		}
+</style>
+	</head>
+
+	<body>
+		<div class="alarm">
+			<div class="top clearFloat">
+				<ul>
+					<li>火情控制分析</li>
+					<li><a href="#">x</a></li>
+				</ul>
+			</div>
+			<div class="content">
+				<ul>
+					<li>
+						<p>消防车预计到达时间</p>
+						<div class="codeTime1">
+							<span>0</span><span>0</span>
+							:
+							<span>0</span><span>6</span>
+							:
+							<span>2</span><span>0</span>
+						</div>
+					</li>
+					<li>
+						<p>消防员预计到达时间</p>
+						<div class="codeTime2">
+							<span>0</span><span>0</span>
+							:
+							<span>0</span><span>6</span>
+							:
+							<span>2</span><span>0</span>
+						</div>
+					</li>
+					<li>可用消防水:&nbsp;<span>2Mpa</span></li>
+					<li>预计灭火时间:&nbsp;<span>9分钟</span></li>
+					<li>风力风向:&nbsp;<span>西北风</span></li>
+				</ul>
+				<button type="button" class="btn btn-danger btn-lg">显示救援路线</button>
+				<button type="button" class="btn btn-success btn-lg">显示人群疏散路线</button>
+			</div>
+
+		</div>
+	</body>
+
+</html>
